@@ -11,10 +11,7 @@ __pycache__/
 ._*
 .idea/
 # Убираю миграции
-# .api_yamdb/api/migrations/
-# .api_yamdb/reviews/migrations/
-# .api_yamdb/users/migrations/
-*/migrations/[0001-9999]_*.py
+**[0000-9999]_*.py
 .Python
 build/
 develop-eggs/
