@@ -1,15 +1,21 @@
+from django.urls import include, path
 from rest_framework import routers
 from .views import SignUPViewSet
 
-from api.views import (CategoryViewSet, GenreViewSet, TitleViewSet)
+from .views import (CategoryViewSet, GenreViewSet, TitleViewSet, ReviewViewSet)
 
 app_name = 'api'
-  
+
 router_version_1 = routers.DefaultRouter()
 router_version_1.register('categories', CategoryViewSet,
                           basename='categories')
 router_version_1.register('genres', GenreViewSet, basename='genres')
 router_version_1.register('titles', TitleViewSet, basename='titles')
+router_version_1.register(
+    r'titles/(?P<title_id>\d+)/reviews',
+    ReviewViewSet,
+    basename='reviews'
+)
 
 
 urlpatterns = [
