@@ -14,7 +14,7 @@ __pycache__/
 # .api_yamdb/api/migrations/
 # .api_yamdb/reviews/migrations/
 # .api_yamdb/users/migrations/
-# /migrations/00*_*.py
+migrations/* !migrations/__init__.py
 .Python
 build/
 develop-eggs/
