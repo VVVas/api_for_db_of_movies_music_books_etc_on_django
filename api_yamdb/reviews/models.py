@@ -24,6 +24,18 @@ class GenreCategoryBaseClass(models.Model):
         ordering = ['name']
 
 
+class ReviewCommentBaseClass(models.Model):
+    text = models.TextField(verbose_name='Текст')
+    pub_date = models.DateTimeField(auto_now_add=True, verbose_name='Дата')
+
+    class Meta:
+        abstract = True
+        ordering = ['-pub_date', 'id']
+
+    def __str__(self) -> str:
+        return self.text[:15]
+
+
 class Category(GenreCategoryBaseClass):
 
     class Meta(GenreCategoryBaseClass.Meta):
@@ -67,3 +79,36 @@ class Title(models.Model):
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
         ordering = ['name']
+
+
+class Review(ReviewCommentBaseClass):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Автор'
+    )
+    score = models.PositiveSmallIntegerField(verbose_name='Оценка')
+
+    class Meta:
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+
+class Comment(ReviewCommentBaseClass):
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Автор'
+    )
+    review = models.ForeignKey(
+        Review,
+        on_delete=models.CASCADE,
+        related_name='comments',
+        verbose_name='Отзыв'
+    )
+
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
