@@ -89,6 +89,12 @@ class Review(ReviewCommentBaseClass):
         verbose_name='Автор'
     )
     score = models.PositiveSmallIntegerField(verbose_name='Оценка')
+    title = models.ForeignKey(
+        Title,
+        on_delete=models.CASCADE,
+        related_name='reviews',
+        verbose_name='Произведение'
+    )
 
     class Meta:
         verbose_name = 'Отзыв'
