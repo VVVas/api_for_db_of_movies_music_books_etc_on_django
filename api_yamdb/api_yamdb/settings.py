@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'reviews.apps.ReviewsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
+    'users',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -103,4 +104,4 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-AUTH_USER_MODEL = 'reviews.User'
+AUTH_USER_MODEL = 'users.User'
