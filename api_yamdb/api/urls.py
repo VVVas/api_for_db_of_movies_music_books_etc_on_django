@@ -1,5 +1,6 @@
+from django.urls import path, include
 from rest_framework import routers
-from .views import SignUPViewSet
+from .views import SignUPViewSet, GetTokenViewSet
 
 from api.views import (CategoryViewSet, GenreViewSet, TitleViewSet)
 
@@ -13,7 +14,9 @@ router_version_1.register('titles', TitleViewSet, basename='titles')
 
 
 urlpatterns = [
-    # Эндотип отправки формы на email
-    path('v1/auth/signup/', SignUPViewSet),
+    # Регистрация нового пользователя и cотправка формы на email
+    path('v1/auth/signup/', SignUPViewSet.as_view()),
+    # Получение токена
+    path('v1/auth/token/', GetTokenViewSet.as_view()),
     path('v1/', include(router_version_1.urls)),
 ]

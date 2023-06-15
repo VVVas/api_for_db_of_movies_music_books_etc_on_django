@@ -1,8 +1,5 @@
 import re
-
 from rest_framework import serializers
-from rest_framework.relations import SlugRelatedField
-from rest_framework.validators import UniqueTogetherValidator
 from reviews.models import Category, Genre, Title
 
 from users.models import User
@@ -17,7 +14,7 @@ class SignUPSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Использовать имя me запрещено!'
             )
-        elif not re.fullmatch(r'[\w.@+-]+\z', value):
+        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
             raise serializers.ValidationError(
                 'Имя должно соответствовать шаблону!'
             )
@@ -27,8 +24,28 @@ class SignUPSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('email', 'username')
+        extra_kwarg = {'email': {'required': True, 'allow_blank': False}}
+        extra_kwarg = {'username': {'required': True, 'allow_blank': False}}
 
-        
+
+class GetTokenSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=150)
+    confirmation_code = serializers.CharField()
+    def validate_username(self, value):
+        if not re.fullmatch(r'[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(
+                'Имя должно соответствовать шаблону!'
+            )
+        else:
+            return value
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')
+        extra_kwarg = {'username': {'required': True, 'allow_blank': False}}
+        extra_kwarg = {'confirmation_code': {'required': True, 'allow_blank': False}}
+
+
 class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
