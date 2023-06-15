@@ -1,15 +1,20 @@
 from django_filters.rest_framework import DjangoFilterBackend
+from django.contrib.auth.tokens import default_token_generator
 from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
+from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
-
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
-
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.core.mail import send_mail
 from reviews.models import Category, Genre, Title
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (
-    IsAdminOrReadOnly, IsModeratorOrReadOnly, IsAuthorOrReadOnly
-)
-from .serializers import (SignUPSerializer,
+     IsAdminOrReadOnly, IsModeratorOrReadOnly, IsAuthorOrReadOnly
+ )
+from .permissions import (IsAdminOrReadOnly)
+from .serializers import (SignUPSerializer, GetTokenSerializer,
                           CategorySerializer, GenreSerializer,
                           TitlesEditorSerializer, TitlesReadSerializer,
                           ReviewSerializer)
@@ -17,13 +22,52 @@ from .serializers import (SignUPSerializer,
 from users.models import User
 
 
-class SignUPViewSet(viewsets.ModelViewSet):
-    serializer_class = SignUPSerializer
+class SignUPViewSet(APIView):
+    permission_classes = [AllowAny]
 
-    def perform_create(self, serializer):
-        # Создание пользователя
-        # Отправка confirmtion_code на email
-        serializer.save(email=self.request.email, username=self.request.user)
+    def post(self, request):
+        serializer = SignUPSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.data['username']
+            email = request.data['email']
+            # Создаем нового пользователя
+            user_obj = User.objects.create(username=user, email=email)
+            # Получаем на него токен подтверждение
+            confirmation_code = default_token_generator.make_token(user_obj)
+            print(confirmation_code)
+            # Отправка confirmtion_code на email
+            send_mail(
+                'Регистрация пользователя',
+                f'Привет, {user}!\n\n confirmation_code = {confirmation_code}.',
+                'admin@yamdb.ru',
+                [email],
+                fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
+            )
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+
+class GetTokenViewSet(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        serializer = GetTokenSerializer(data=request.data)
+        if serializer.is_valid():
+            user = request.data['username']
+            confirmation_code = request.data['confirmation_code']
+            user_obj = User.objects.get(username=user)
+            # Проверка confirmation_code
+            if default_token_generator.check_token(user_obj, confirmation_code):
+                # Получение токена
+                refresh = RefreshToken.for_user(user_obj)
+                response = {
+                    'token': str(refresh.access_token)
+                }
+                # Выдача токена
+                return Response(response)
+            else:
+                return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class CategoryViewSet(ListCreateDestroyViewSet):
