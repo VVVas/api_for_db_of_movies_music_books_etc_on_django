@@ -11,9 +11,8 @@ from django.core.mail import send_mail
 from reviews.models import Category, Genre, Title
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (
-     IsAdminOrReadOnly, IsModeratorOrReadOnly, IsAuthorOrReadOnly
- )
-from .permissions import (IsAdminOrReadOnly)
+    IsAdminOrReadOnly, IsModeratorOrReadOnly, IsAuthorOrReadOnly
+)
 from .serializers import (SignUPSerializer, GetTokenSerializer,
                           CategorySerializer, GenreSerializer,
                           TitlesEditorSerializer, TitlesReadSerializer,
