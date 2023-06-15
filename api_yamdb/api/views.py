@@ -1,6 +1,7 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from django.contrib.auth.tokens import default_token_generator
-from rest_framework.permissions import AllowAny
+from django.shortcuts import get_object_or_404
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import viewsets
 from rest_framework.views import APIView
@@ -9,10 +10,14 @@ from rest_framework import status
 from django.core.mail import send_mail
 from reviews.models import Category, Genre, Title
 from .mixins import ListCreateDestroyViewSet
+from .permissions import (
+     IsAdminOrReadOnly, IsModeratorOrReadOnly, IsAuthorOrReadOnly
+ )
 from .permissions import (IsAdminOrReadOnly)
 from .serializers import (SignUPSerializer, GetTokenSerializer,
                           CategorySerializer, GenreSerializer,
-                          TitlesEditorSerializer, TitlesReadSerializer)
+                          TitlesEditorSerializer, TitlesReadSerializer,
+                          ReviewSerializer)
 
 from users.models import User
 
