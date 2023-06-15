@@ -7,7 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
-from reviews.models import Category, Genre
+from reviews.models import Category, Genre, Title
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (IsAdminOrReadOnly)
 from .serializers import (SignUPSerializer, GetTokenSerializer,
@@ -89,3 +89,25 @@ class TitleViewSet(viewsets.ModelViewSet):
         if self.request.method in ['POST', 'PATCH']:
             return TitlesEditorSerializer
         return TitlesReadSerializer
+
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = (
+        IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly,
+        IsModeratorOrReadOnly, IsAdminOrReadOnly
+    )
+
+    def _get_title_for_review(self):
+        title_id = self.kwargs.get('title_id')
+        return get_object_or_404(Title, id=title_id)
+
+    def get_queryset(self):
+        title = self._get_title_for_review()
+        return title.review.select_related(
+            'author',
+        )
+
+    def perform_create(self, serializer):
+        title = self._get_title_for_review()
+        serializer.save(author=self.request.user, title=title)

@@ -11,9 +11,9 @@ __pycache__/
 ._*
 .idea/
 # Убираю миграции
-.api_yamdb/api/migrations/
-.api_yamdb/reviews/migrations/
-.api_yamdb/users/migrations/
+*[0000-9999]_*.py
+# Убрал sent_mail
+api_yamdb/sent_emails/
 .Python
 build/
 develop-eggs/
