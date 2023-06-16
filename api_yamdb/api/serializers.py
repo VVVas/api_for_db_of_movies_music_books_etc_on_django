@@ -8,6 +8,45 @@ from reviews.models import Category, Genre, Title, Review
 from users.models import User
 
 
+class UserSerializer(serializers.ModelSerializer):
+    username = serializers.CharField(max_length=150)
+    email = serializers.EmailField(max_length=254)
+    first_name = serializers.CharField(max_length=150, required=False)
+    last_name = serializers.CharField(max_length=150, required=False)
+
+    def validate_username(self, value):
+        if value == 'me':
+            raise serializers.ValidationError(
+                'Использовать имя me запрещено!'
+            )
+        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
+            raise serializers.ValidationError(
+                'Имя должно соответствовать шаблону!'
+            )
+        else:
+            return value
+
+    def update(self, user, validated_data):
+        user = User.objects.get(username=user)
+        if validated_data.get("username"):
+            user.email = validated_data.get("username")
+        if validated_data.get("email"):
+            user.email = validated_data.get("email")
+        if validated_data.get("first_name"):
+            user.first_name = validated_data.get("first_name")
+        if validated_data.get("last_name"):
+            user.last_name = validated_data.get("last_name")
+        if validated_data.get("bio"):
+            user.last_name = validated_data.get("bio")
+        user.save()
+
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        extra_kwarg = {'email': {'required': True, 'allow_blank': False}}
+        extra_kwarg = {'username': {'required': True, 'allow_blank': False}}
+
+
 class SignUPSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(max_length=150)

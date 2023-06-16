@@ -1,6 +1,14 @@
 from rest_framework.permissions import BasePermission, SAFE_METHODS
 
 
+class IsAdmin(BasePermission):
+    message = 'Использовать контент может только администратор.'
+
+    def has_permission(self, request, view):
+        return (request.user.is_admin
+                or request.user.is_superuser)
+
+
 class IsAdminOrReadOnly(BasePermission):
     message = 'Изменить контент может только администратор.'
 
