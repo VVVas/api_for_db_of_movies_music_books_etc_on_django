@@ -1,11 +1,13 @@
 import re
+
+from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
-from reviews.models import Category, Genre, Title, Review
 
+from reviews.models import Category, Comment, Genre, Review, Title
 
-from users.models import User
+User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -73,6 +75,7 @@ class SignUPSerializer(serializers.ModelSerializer):
 class GetTokenSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)
     confirmation_code = serializers.CharField()
+
     def validate_username(self, value):
         if not re.fullmatch(r'[\w.@+-]+\Z', value):
             raise serializers.ValidationError(
@@ -142,6 +145,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         read_only=True,
     )
 
+    def validate_score(self, value):
+        if value < 0 or value > 10:
+            raise serializers.ValidationError('Диапазон возможных оценок от 1 до 10')
+        return value
+
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
@@ -152,3 +160,14 @@ class ReviewSerializer(serializers.ModelSerializer):
                 message='Разрешён только один Отзыв на Произведение',
             ),
         )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.SlugRelatedField(
+        slug_field='username',
+        read_only=True,
+    )
+
+    class Meta:
+        fields = ('id', 'text', 'author', 'pub_date')
+        model = Comment
