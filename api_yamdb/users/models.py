@@ -35,6 +35,5 @@ class User(AbstractUser):
         return self.username
 
     class Meta:
-        verbose_name = 'user'
-        verbose_name_plural = 'users'
-
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'

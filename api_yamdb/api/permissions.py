@@ -5,8 +5,8 @@ class IsAdmin(BasePermission):
     message = 'Использовать контент может только администратор.'
 
     def has_permission(self, request, view):
-        return (request.user.is_admin
-                or request.user.is_superuser)
+        return (request.user.is_authenticated
+                and (request.user.is_admin or request.user.is_superuser))
 
 
 class IsAdminOrReadOnly(BasePermission):
@@ -15,17 +15,14 @@ class IsAdminOrReadOnly(BasePermission):
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
                 or (request.user.is_authenticated
-                    and (request.user.is_admin
-                         or request.user.is_superuser)))
+                    and (request.user.is_admin or request.user.is_superuser)))
 
 
-class IsModeratorOrReadOnly(BasePermission):
+class IsModerator(BasePermission):
     message = 'Изменить контент может только модератор.'
 
     def has_permission(self, request, view):
-        return (request.method in SAFE_METHODS
-                or (request.user.is_authenticated
-                    and request.user.is_moderator))
+        return request.user.is_authenticated and request.user.is_moderator
 
 
 class IsAuthorOrReadOnly(BasePermission):
