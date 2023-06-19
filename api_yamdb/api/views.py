@@ -97,7 +97,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
 
-class ListCreateDestroyViewSet(mixins.ListModelMixin,
+class GenreCategoryBaseViewSet(mixins.ListModelMixin,
                                mixins.CreateModelMixin,
                                mixins.DestroyModelMixin,
                                viewsets.GenericViewSet):
@@ -107,12 +107,12 @@ class ListCreateDestroyViewSet(mixins.ListModelMixin,
     lookup_field = 'slug'
 
 
-class CategoryViewSet(ListCreateDestroyViewSet):
+class CategoryViewSet(GenreCategoryBaseViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
-class GenreViewSet(ListCreateDestroyViewSet):
+class GenreViewSet(GenreCategoryBaseViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
 
