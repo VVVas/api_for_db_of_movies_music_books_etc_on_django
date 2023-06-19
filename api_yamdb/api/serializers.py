@@ -7,6 +7,7 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
+from .messages import REVIEW_ONE, REVIEW_SCORE
 
 User = get_user_model()
 
@@ -149,7 +150,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value < 0 or value > 10:
-            raise serializers.ValidationError('Диапазон возможных оценок от 1 до 10')
+            raise serializers.ValidationError(REVIEW_SCORE)
         return value
 
     def validate(self, data):
@@ -160,7 +161,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             if Review.objects.filter(
                 title=title, author=request.user
             ).exists():
-                raise serializers.ValidationError('Разрешён только один Отзыв на Произведение')
+                raise serializers.ValidationError(REVIEW_ONE)
         return data
 
     class Meta:

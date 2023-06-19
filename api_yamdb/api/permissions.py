@@ -1,8 +1,11 @@
-from rest_framework.permissions import BasePermission, SAFE_METHODS
+from rest_framework.permissions import SAFE_METHODS, BasePermission
+
+from .messages import (PERMISSION_ADMIN_EDIT, PERMISSION_ADMIN_USE,
+                       PERMISSION_EDIT)
 
 
 class IsAdmin(BasePermission):
-    message = 'Использовать контент может только администратор.'
+    message = PERMISSION_ADMIN_USE
 
     def has_permission(self, request, view):
         return (request.user.is_authenticated
@@ -10,7 +13,7 @@ class IsAdmin(BasePermission):
 
 
 class IsAdminOrReadOnly(BasePermission):
-    message = 'Изменить контент может только администратор.'
+    message = PERMISSION_ADMIN_EDIT
 
     def has_permission(self, request, view):
         return (request.method in SAFE_METHODS
@@ -19,7 +22,7 @@ class IsAdminOrReadOnly(BasePermission):
 
 
 class IsAuthorModeratorAdminOrReadOnly(BasePermission):
-    message = 'Изменить контент может только автор, модератор или администратор.'
+    message = PERMISSION_EDIT
 
     def has_permission(self, request, view):
         return (
