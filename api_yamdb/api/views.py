@@ -115,7 +115,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all().annotate(Avg('reviews__score'))
+    queryset = Title.objects.annotate(Avg('reviews__score')).order_by('name')
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
 
@@ -137,7 +137,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
         title = self._get_title_for_review()
         return title.reviews.select_related(
             'author',
-        )
+        ).order_by('-pub_date', 'id')
 
     def perform_create(self, serializer):
         title = self._get_title_for_review()
