@@ -115,7 +115,9 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.annotate(Avg('reviews__score')).order_by('name')
+    queryset = Title.objects.select_related(
+        'category',
+    ).annotate(rating=Avg('reviews__score')).order_by('name')
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
 
@@ -147,7 +149,6 @@ class ReviewViewSet(viewsets.ModelViewSet):
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorModeratorAdminOrReadOnly, )
-    pagination_class = LimitOffsetPagination
 
     def _get_review_for_comment(self):
         review_id = self.kwargs.get('review_id')
@@ -157,7 +158,7 @@ class CommentViewSet(viewsets.ModelViewSet):
         review = self._get_review_for_comment()
         return review.comments.select_related(
             'author',
-        )
+        ).order_by('-pub_date', 'id')
 
     def perform_create(self, serializer):
         review = self._get_review_for_comment()

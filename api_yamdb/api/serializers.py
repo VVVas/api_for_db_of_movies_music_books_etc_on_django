@@ -117,11 +117,12 @@ class GenreSerializer(serializers.ModelSerializer):
 class TitlesReadSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(read_only=True, many=True)
     category = CategorySerializer(read_only=True)
-    rating = serializers.IntegerField(source="reviews__score__avg", read_only=True)
+    rating = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = Title
         fields = ('id', 'name', 'rating', 'description', 'genre', 'category',)
+        # fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category',)
 
 
 class TitlesEditorSerializer(serializers.ModelSerializer):
@@ -152,26 +153,19 @@ class ReviewSerializer(serializers.ModelSerializer):
         return value
 
     def validate(self, data):
-        request = self.context["request"]
-        title_id = self.context["view"].kwargs.get("title_id")
-        title = get_object_or_404(Title, pk=title_id)
-        if request.method == "POST":
+        request = self.context['request']
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        if request.method == 'POST':
             if Review.objects.filter(
                 title=title, author=request.user
             ).exists():
-                raise serializers.ValidationError("Only one review is allowed")
+                raise serializers.ValidationError('Разрешён только один Отзыв на Произведение')
         return data
 
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
-        # validators = (
-        #     serializers.UniqueTogetherValidator(
-        #         queryset=Review.objects.all(),
-        #         fields=('author', 'title'),
-        #         message='Разрешён только один Отзыв на Произведение',
-        #     ),
-        # )
 
 
 class CommentSerializer(serializers.ModelSerializer):
