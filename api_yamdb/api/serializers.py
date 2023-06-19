@@ -1,11 +1,13 @@
 import re
 
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
+from .messages import REVIEW_ONE, REVIEW_SCORE
 
 User = get_user_model()
 
@@ -120,7 +122,8 @@ class TitlesReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = '__all__'
+        fields = ('id', 'name', 'rating', 'description', 'genre', 'category',)
+        # fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category',)
 
 
 class TitlesEditorSerializer(serializers.ModelSerializer):
@@ -147,19 +150,23 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value < 0 or value > 10:
-            raise serializers.ValidationError('Диапазон возможных оценок от 1 до 10')
+            raise serializers.ValidationError(REVIEW_SCORE)
         return value
+
+    def validate(self, data):
+        request = self.context['request']
+        title_id = self.context['view'].kwargs.get('title_id')
+        title = get_object_or_404(Title, id=title_id)
+        if request.method == 'POST':
+            if Review.objects.filter(
+                title=title, author=request.user
+            ).exists():
+                raise serializers.ValidationError(REVIEW_ONE)
+        return data
 
     class Meta:
         fields = ('id', 'text', 'author', 'score', 'pub_date')
         model = Review
-        validators = (
-            serializers.UniqueTogetherValidator(
-                queryset=Review.objects.all(),
-                fields=('author', 'title'),
-                message='Разрешён только один Отзыв на Произведение',
-            ),
-        )
 
 
 class CommentSerializer(serializers.ModelSerializer):
