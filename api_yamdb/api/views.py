@@ -1,6 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import status, viewsets
@@ -16,7 +17,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from reviews.models import Category, Genre, Review, Title
 from .mixins import ListCreateDestroyViewSet
 from .permissions import (IsAdmin, IsAdminOrReadOnly, IsAuthorOrReadOnly,
-                          IsModerator)
+                          IsModerator, IsAuthorModeratorAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
                           GenreSerializer, GetTokenSerializer,
                           ReviewSerializer, SignUPSerializer,
@@ -114,7 +115,7 @@ class GenreViewSet(ListCreateDestroyViewSet):
 
 
 class TitleViewSet(viewsets.ModelViewSet):
-    queryset = Title.objects.all()
+    queryset = Title.objects.all().annotate(Avg('reviews__score'))
     permission_classes = (IsAdminOrReadOnly,)
     filter_backends = (DjangoFilterBackend,)
 
@@ -126,10 +127,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, IsModerator, IsAdmin
-    )
-    pagination_class = LimitOffsetPagination
+    permission_classes = (IsAuthorModeratorAdminOrReadOnly, )
 
     def _get_title_for_review(self):
         title_id = self.kwargs.get('title_id')
@@ -148,9 +146,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
-    permission_classes = (
-        IsAuthenticatedOrReadOnly, IsAuthorOrReadOnly, IsModerator, IsAdmin
-    )
+    permission_classes = (IsAuthorModeratorAdminOrReadOnly, )
     pagination_class = LimitOffsetPagination
 
     def _get_review_for_comment(self):
