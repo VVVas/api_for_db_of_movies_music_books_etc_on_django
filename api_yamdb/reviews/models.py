@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 User = get_user_model()
@@ -87,7 +88,13 @@ class Review(ReviewCommentBaseClass):
         related_name='reviews',
         verbose_name='Автор'
     )
-    score = models.PositiveSmallIntegerField(verbose_name='Оценка')
+    score = models.PositiveSmallIntegerField(
+        verbose_name='Оценка',
+        validators=(
+            MinValueValidator(1, 'Минимальная оценка - 1'),
+            MaxValueValidator(10, 'Наивысшая оценка - 10'),
+        ),
+    )
     title = models.ForeignKey(
         Title,
         on_delete=models.CASCADE,
