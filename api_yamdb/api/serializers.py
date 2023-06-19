@@ -122,8 +122,8 @@ class TitlesReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = ('id', 'name', 'rating', 'description', 'genre', 'category',)
-        # fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category',)
+        # fields = ('id', 'name', 'rating', 'description', 'genre', 'category',)
+        fields = ('id', 'name', 'year', 'rating', 'description', 'genre', 'category',)
 
 
 class TitlesEditorSerializer(serializers.ModelSerializer):
