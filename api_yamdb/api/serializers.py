@@ -30,20 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
         else:
             return value
 
-    def update(self, user, validated_data):
-        user = User.objects.get(username=user)
-        if validated_data.get("username"):
-            user.email = validated_data.get("username")
-        if validated_data.get("email"):
-            user.email = validated_data.get("email")
-        if validated_data.get("first_name"):
-            user.first_name = validated_data.get("first_name")
-        if validated_data.get("last_name"):
-            user.last_name = validated_data.get("last_name")
-        if validated_data.get("bio"):
-            user.last_name = validated_data.get("bio")
-        user.save()
-
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
