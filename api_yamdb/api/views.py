@@ -91,10 +91,11 @@ class UsersViewSet(viewsets.ModelViewSet):
             user = get_object_or_404(queryset, username=request.user)
             serializer = UserSerializer(user)
         if request.method == 'PATCH':
-            serializer = UserSerializer(data=request.data)
-            serializer.is_valid()
-            serializer.update(request.user, serializer.data)
-        return Response(serializer.data)
+            serializer = self.get_serializer(request.user, data=request.data, partial=True)
+            if not serializer.is_valid():
+                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class GenreCategoryBaseViewSet(mixins.ListModelMixin,
