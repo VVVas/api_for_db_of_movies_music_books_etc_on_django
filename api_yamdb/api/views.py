@@ -79,10 +79,10 @@ class UsersViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     pagination_class = LimitOffsetPagination
     permission_classes = (IsAdmin,)
-    # permission_classes = (AllowAny,)
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
     lookup_field = 'username'
+    http_method_names = ['get', 'post', 'patch', 'delete']
 
     @action(detail=False, permission_classes=(IsAuthenticated,), methods=['get', 'patch'], url_path='me')
     def me_dev(self, request):
@@ -94,7 +94,7 @@ class UsersViewSet(viewsets.ModelViewSet):
             serializer = self.get_serializer(request.user, data=request.data, partial=True)
             if not serializer.is_valid():
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
+            serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
