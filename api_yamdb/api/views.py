@@ -35,15 +35,20 @@ class SignUPViewSet(APIView):
             username = request.data['username']
             email = request.data['email']
             try:
-                user, _ = User.objects.get_or_create(username=username, email=email)
+                user, _ = User.objects.get_or_create(
+                    username=username, email=email
+                )
             except IntegrityError:
-                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.data, status=status.HTTP_400_BAD_REQUEST
+                )
 
             confirmation_code = default_token_generator.make_token(user)
 
             send_mail(
                 'Регистрация пользователя',
-                f'Привет, {username}!\n\n confirmation_code = {confirmation_code}.',
+                f'Привет, {username}!\n\n '
+                f'confirmation_code = {confirmation_code}.',
                 'admin@yamdb.ru',
                 [email],
                 fail_silently=False,
@@ -79,16 +84,25 @@ class UsersViewSet(viewsets.ModelViewSet):
     lookup_field = 'username'
     http_method_names = ['get', 'post', 'patch', 'delete']
 
-    @action(detail=False, permission_classes=(IsAuthenticated,), methods=['get', 'patch'], url_path='me')
+    @action(
+        detail=False,
+        permission_classes=(IsAuthenticated,),
+        methods=['get', 'patch'],
+        url_path='me'
+    )
     def me_dev(self, request):
         if request.method == 'GET':
             queryset = User.objects.all()
             user = get_object_or_404(queryset, username=request.user)
             serializer = UserSerializer(user)
         if request.method == 'PATCH':
-            serializer = self.get_serializer(request.user, data=request.data, partial=True)
+            serializer = self.get_serializer(
+                request.user, data=request.data, partial=True
+            )
             if not serializer.is_valid():
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                )
             serializer.save(role=request.user.role)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
