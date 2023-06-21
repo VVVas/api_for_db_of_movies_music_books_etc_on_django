@@ -18,12 +18,12 @@ class User(AbstractUser):
     )
     bio = models.TextField(
         verbose_name='Биография',
-        help_text='Поле для биографии',
+        help_text='Расскажите о себе, своих достижениях и т.д.',
         blank=True
     )
     role = models.CharField(
         verbose_name='Роль',
-        help_text='Поле для ввода роли (user, moderator, admin)',
+        help_text='Выберите роль: Пользователь, Модератор, Администратор',
         default='user',
         choices=ROLES,
         max_length=15,
