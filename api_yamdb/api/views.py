@@ -1,17 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
+from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.permissions import (AllowAny, IsAuthenticated)
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.db import IntegrityError
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
@@ -27,46 +27,42 @@ User = get_user_model()
 
 
 class SignUPViewSet(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = SignUPSerializer(data=request.data)
         if serializer.is_valid():
-            user = request.data['username']
+            username = request.data['username']
             email = request.data['email']
             try:
-                # Проверка пользователя
-                # Создаем нового пользователя
-                user_obj, created = User.objects.get_or_create(username=user, email=email)
+                user, _ = User.objects.get_or_create(username=username, email=email)
             except IntegrityError:
                 return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-            # Получаем на него токен подтверждение
-            confirmation_code = default_token_generator.make_token(user_obj)
-            print(confirmation_code)
-            # Отправка confirmtion_code на email
+            confirmation_code = default_token_generator.make_token(user)
+
             send_mail(
                 'Регистрация пользователя',
-                f'Привет, {user}!\n\n confirmation_code = {confirmation_code}.',
+                f'Привет, {username}!\n\n confirmation_code = {confirmation_code}.',
                 'admin@yamdb.ru',
                 [email],
-                fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
+                fail_silently=False,
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetTokenViewSet(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         if serializer.is_valid():
-            user = request.data['username']
+            username = request.data['username']
             confirmation_code = request.data['confirmation_code']
-            user_obj = get_object_or_404(User, username=user)
-            if default_token_generator.check_token(user_obj, confirmation_code):
-                refresh = RefreshToken.for_user(user_obj)
+            user = get_object_or_404(User, username=username)
+            if default_token_generator.check_token(user, confirmation_code):
+                refresh = RefreshToken.for_user(user)
                 response = {
                     'token': str(refresh.access_token)
                 }
