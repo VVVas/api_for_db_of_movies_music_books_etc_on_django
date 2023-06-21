@@ -58,11 +58,11 @@ class GetTokenViewSet(APIView):
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
         if serializer.is_valid():
-            user = request.data['username']
+            username = request.data['username']
             confirmation_code = request.data['confirmation_code']
-            user_obj = get_object_or_404(User, username=user)
-            if default_token_generator.check_token(user_obj, confirmation_code):
-                refresh = RefreshToken.for_user(user_obj)
+            user = get_object_or_404(User, username=username)
+            if default_token_generator.check_token(user, confirmation_code):
+                refresh = RefreshToken.for_user(user)
                 response = {
                     'token': str(refresh.access_token)
                 }
