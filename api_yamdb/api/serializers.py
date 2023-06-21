@@ -6,7 +6,8 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from .messages import REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE
+from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
+                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
 
 User = get_user_model()
 
@@ -15,18 +16,16 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value == 'me':
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено!'
-            )
+            raise serializers.ValidationError(USER_NAME_NOT_ME)
         elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(
-                'Имя должно соответствовать шаблону!'
-            )
+            raise serializers.ValidationError(USER_NAME_TEMPLATE)
         return value
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'first_name', 'last_name', 'bio', 'role')
+        fields = (
+            'username', 'email', 'first_name', 'last_name', 'bio', 'role',
+        )
         extra_kwarg = {'email': {'required': True, 'allow_blank': False}}
         extra_kwarg = {'username': {'required': True, 'allow_blank': False}}
 
@@ -37,13 +36,9 @@ class SignUPSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if value == 'me':
-            raise serializers.ValidationError(
-                'Использовать имя me запрещено!'
-            )
+            raise serializers.ValidationError(USER_NAME_NOT_ME)
         elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(
-                'Имя должно соответствовать шаблону!'
-            )
+            raise serializers.ValidationError(USER_NAME_TEMPLATE)
         return value
 
     class Meta:
@@ -59,16 +54,16 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
         if not re.fullmatch(r'[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(
-                'Имя должно соответствовать шаблону!'
-            )
+            raise serializers.ValidationError(USER_NAME_TEMPLATE)
         return value
 
     class Meta:
         model = User
         fields = ('username', 'confirmation_code')
         extra_kwarg = {'username': {'required': True, 'allow_blank': False}}
-        extra_kwarg = {'confirmation_code': {'required': True, 'allow_blank': False}}
+        extra_kwarg = {
+            'confirmation_code': {'required': True, 'allow_blank': False}
+        }
 
 
 class CategorySerializer(serializers.ModelSerializer):
