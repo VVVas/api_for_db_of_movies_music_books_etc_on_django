@@ -9,6 +9,14 @@ ROLES = [
 
 
 class User(AbstractUser):
+    username = models.CharField(
+        max_length=150,
+        unique=True
+    )
+    email = models.CharField(
+        max_length=254,
+        unique=True
+    )
     bio = models.TextField(
         verbose_name='Биография',
         help_text='Поле для биографии',

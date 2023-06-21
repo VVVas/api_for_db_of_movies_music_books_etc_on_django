@@ -12,6 +12,7 @@ from rest_framework.permissions import (AllowAny, IsAuthenticated)
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db import IntegrityError
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
@@ -34,8 +35,13 @@ class SignUPViewSet(APIView):
         if serializer.is_valid():
             user = request.data['username']
             email = request.data['email']
-            # Создаем нового пользователя
-            user_obj = User.objects.create(username=user, email=email)
+            try:
+                # Проверка пользователя
+                # Создаем нового пользователя
+                user_obj, created = User.objects.get_or_create(username=user, email=email)
+            except IntegrityError:
+                return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
             # Получаем на него токен подтверждение
             confirmation_code = default_token_generator.make_token(user_obj)
             print(confirmation_code)
@@ -47,7 +53,7 @@ class SignUPViewSet(APIView):
                 [email],
                 fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
             )
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
