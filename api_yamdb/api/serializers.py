@@ -14,10 +14,6 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(max_length=150)
-    email = serializers.EmailField(max_length=254)
-    first_name = serializers.CharField(max_length=150, required=False)
-    last_name = serializers.CharField(max_length=150, required=False)
 
     def validate_username(self, value):
         if value == 'me':
