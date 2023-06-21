@@ -35,5 +35,6 @@ class User(AbstractUser):
         return self.username
 
     class Meta:
+        ordering = ['username', 'id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
