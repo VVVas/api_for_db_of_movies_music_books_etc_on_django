@@ -7,7 +7,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import mixins, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
-from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import (AllowAny, IsAuthenticated)
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -78,7 +77,6 @@ class GetTokenViewSet(APIView):
 class UsersViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    pagination_class = LimitOffsetPagination
     permission_classes = (IsAdmin,)
     filter_backends = (SearchFilter,)
     search_fields = ('username',)
