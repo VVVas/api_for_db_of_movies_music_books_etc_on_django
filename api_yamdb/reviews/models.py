@@ -23,7 +23,7 @@ class GenreCategoryBaseClass(models.Model):
 
     class Meta:
         abstract = True
-        ordering = ['name']
+        ordering = ['name', 'id']
 
 
 class ReviewCommentBaseClass(models.Model):
@@ -84,7 +84,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'Произведения'
-        ordering = ['name']
+        ordering = ['name', 'id']
 
 
 class Review(ReviewCommentBaseClass):
