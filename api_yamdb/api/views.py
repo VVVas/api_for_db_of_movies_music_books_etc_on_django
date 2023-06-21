@@ -27,7 +27,7 @@ User = get_user_model()
 
 
 class SignUPViewSet(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = SignUPSerializer(data=request.data)
@@ -53,7 +53,7 @@ class SignUPViewSet(APIView):
 
 
 class GetTokenViewSet(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = (AllowAny,)
 
     def post(self, request):
         serializer = GetTokenSerializer(data=request.data)
