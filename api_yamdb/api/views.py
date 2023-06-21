@@ -65,18 +65,13 @@ class GetTokenViewSet(APIView):
         if serializer.is_valid():
             user = request.data['username']
             confirmation_code = request.data['confirmation_code']
-            user_obj = User.objects.get(username=user)
-            # Проверка confirmation_code
+            user_obj = get_object_or_404(User, username=user)
             if default_token_generator.check_token(user_obj, confirmation_code):
-                # Получение токена
                 refresh = RefreshToken.for_user(user_obj)
                 response = {
                     'token': str(refresh.access_token)
                 }
-                # Выдача токена
                 return Response(response)
-            else:
-                return Response(serializer.errors, status=status.HTTP_406_NOT_ACCEPTABLE)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
