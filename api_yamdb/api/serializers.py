@@ -109,9 +109,7 @@ class TitlesReadSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Title
-        fields = (
-            'id', 'name', 'year', 'rating', 'description', 'genre', 'category',
-        )
+        fields = '__all__'
 
 
 class TitlesEditorSerializer(serializers.ModelSerializer):
@@ -158,7 +156,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         return data
 
     class Meta:
-        fields = ('id', 'text', 'author', 'score', 'pub_date')
+        exclude = ('title',)
         model = Review
 
 
@@ -169,5 +167,5 @@ class CommentSerializer(serializers.ModelSerializer):
     )
 
     class Meta:
-        fields = ('id', 'text', 'author', 'pub_date')
+        exclude = ('review',)
         model = Comment
