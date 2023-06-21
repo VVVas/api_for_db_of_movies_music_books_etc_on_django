@@ -25,10 +25,7 @@ router_version_1.register('titles', TitleViewSet, basename='titles')
 
 
 urlpatterns = [
-    # Регистрация нового пользователя и cотправка формы на email
     path('v1/auth/signup/', SignUPViewSet.as_view()),
-    # Получение токена
     path('v1/auth/token/', GetTokenViewSet.as_view()),
-    # Работа с пользователем
     path('v1/', include(router_version_1.urls)),
 ]
