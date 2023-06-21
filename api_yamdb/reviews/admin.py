@@ -32,7 +32,13 @@ class ReviewAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Category)
-admin.site.register(Genre)
+class CategoryGenreAdmin(admin.ModelAdmin):
+    list_display = ('pk', 'name', 'slug',)
+    search_fields = ('name',)
+    empty_value_display = '-пусто-'
+
+
+admin.site.register(Category, CategoryGenreAdmin)
+admin.site.register(Genre, CategoryGenreAdmin)
 admin.site.register(Title, TitleAdmin)
 admin.site.register(Review, ReviewAdmin)
