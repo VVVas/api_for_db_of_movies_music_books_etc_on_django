@@ -22,8 +22,7 @@ class UserSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Имя должно соответствовать шаблону!'
             )
-        else:
-            return value
+        return value
 
     class Meta:
         model = User
@@ -45,8 +44,7 @@ class SignUPSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Имя должно соответствовать шаблону!'
             )
-        else:
-            return value
+        return value
 
     class Meta:
         model = User
@@ -64,8 +62,7 @@ class GetTokenSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 'Имя должно соответствовать шаблону!'
             )
-        else:
-            return value
+        return value
 
     class Meta:
         model = User
