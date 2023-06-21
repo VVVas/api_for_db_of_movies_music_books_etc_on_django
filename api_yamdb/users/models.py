@@ -43,6 +43,12 @@ class User(AbstractUser):
         return self.username
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'email'],
+                name='%(app_label)s_%(class)s_username_email_pair_unique'
+            )
+        ]
         ordering = ['username', 'id']
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
