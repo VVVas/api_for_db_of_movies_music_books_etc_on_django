@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -61,8 +61,8 @@ class Title(models.Model):
         verbose_name='Год выпуска',
         validators=(
             MaxValueValidator(
-                (date.year + 10),
-                'Нельзя обсуждать произведения из далекого будущего'
+                (datetime.now().year + 10),
+                'Год слишком далеко в будущем'
             ),
         ),
     )
