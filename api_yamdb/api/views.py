@@ -35,22 +35,18 @@ class SignUPViewSet(APIView):
             user = request.data['username']
             email = request.data['email']
             try:
-                # Проверка пользователя
-                # Создаем нового пользователя
                 user_obj, created = User.objects.get_or_create(username=user, email=email)
             except IntegrityError:
                 return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
-            # Получаем на него токен подтверждение
             confirmation_code = default_token_generator.make_token(user_obj)
-            print(confirmation_code)
-            # Отправка confirmtion_code на email
+
             send_mail(
                 'Регистрация пользователя',
                 f'Привет, {user}!\n\n confirmation_code = {confirmation_code}.',
                 'admin@yamdb.ru',
                 [email],
-                fail_silently=False,  # Сообщать об ошибках («молчать ли об ошибках?»)
+                fail_silently=False,
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
