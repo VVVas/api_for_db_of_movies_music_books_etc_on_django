@@ -1,9 +1,13 @@
 import csv
 
 from django.conf import settings
+from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 
-from reviews.models import User, Category, Genre, Title, Review, Comment
+from reviews.models import Category, Genre, Title, Review, Comment
+
+
+User = get_user_model()
 
 
 TABLES = {
