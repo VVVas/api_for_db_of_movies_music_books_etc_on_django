@@ -1,3 +1,4 @@
+from datetime import date
 import re
 
 from django.contrib.auth import get_user_model
@@ -7,7 +8,7 @@ from rest_framework.relations import SlugRelatedField
 from rest_framework.validators import UniqueTogetherValidator
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from .messages import REVIEW_ONE, REVIEW_SCORE
+from .messages import REVIEW_ONE, REVIEW_SCORE, TITLE_NOT_FROM_FUTURE
 
 User = get_user_model()
 
@@ -123,6 +124,11 @@ class TitlesEditorSerializer(serializers.ModelSerializer):
         slug_field='slug',
         queryset=Category.objects.all(),
     )
+
+    def validate_year(self, value):
+        if value > (date.year + 10):
+            raise serializers.ValidationError(TITLE_NOT_FROM_FUTURE)
+        return value
 
     class Meta:
         model = Title
