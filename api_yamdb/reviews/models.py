@@ -1,8 +1,8 @@
+from datetime import datetime
+
 from django.contrib.auth import get_user_model
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-
-from .validators import validate_actual_year
 
 User = get_user_model()
 
@@ -57,9 +57,14 @@ class Title(models.Model):
         max_length=256,
         verbose_name='Название'
     )
-    year = models.PositiveSmallIntegerField(
+    year = models.SmallIntegerField(
         verbose_name='Год выпуска',
-        validators=[validate_actual_year]
+        validators=(
+            MaxValueValidator(
+                (datetime.now().year + 10),
+                'Год слишком далеко в будущем'
+            ),
+        ),
     )
     description = models.TextField(
         verbose_name='Описание',
