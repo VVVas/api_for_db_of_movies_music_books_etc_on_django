@@ -5,6 +5,7 @@ from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     GetTokenViewSet, ReviewViewSet, SignUPViewSet,
                     TitleViewSet, UsersViewSet)
 
+
 app_name = 'api'
 
 router_version_1 = routers.DefaultRouter()
