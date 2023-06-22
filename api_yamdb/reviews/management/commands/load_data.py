@@ -1,29 +1,22 @@
 import csv
 import os
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import BaseCommand
 from django.db import IntegrityError
 
-from api_yamdb.settings import CSV_FILES_DIR
-from reviews.models import (
-    Category,
-    Genre,
-    Title,
-    Review,
-    Comment,
-    GenreTitle
-)
-
+from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
+CSV_FILES_DIR = os.path.join(settings.BASE_DIR, 'static/data')
 
 TABLES = {
     'category': Category,
     'genre': Genre,
     'titles': Title,
-    'genre_title': GenreTitle,
+    'genre_title': Title.genre.through,
     'users': User,
     'review': Review,
     'comments': Comment,
