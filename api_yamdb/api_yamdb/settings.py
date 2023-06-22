@@ -109,13 +109,9 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 
-CSV_FILES_DIR = os.path.join(BASE_DIR, 'static/data')
-
 AUTH_USER_MODEL = 'users.User'
 
-#  подключаем движок filebased.EmailBackend
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# указываем директорию, в которую будут складываться файлы писем
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
 
 
