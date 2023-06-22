@@ -10,6 +10,7 @@ from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
 
+
 CSV_FILES_DIR = os.path.join(settings.BASE_DIR, 'static/data')
 
 TABLES = {
