@@ -12,7 +12,7 @@ from reviews.models import (
     Title,
     Review,
     Comment,
-    GenreTitle
+    # GenreTitle
 )
 
 
@@ -23,7 +23,7 @@ TABLES = {
     'category': Category,
     'genre': Genre,
     'titles': Title,
-    'genre_title': GenreTitle,
+    'genre_title': Title.genre.through,
     'users': User,
     'review': Review,
     'comments': Comment,
