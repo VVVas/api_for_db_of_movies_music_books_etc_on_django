@@ -8,7 +8,7 @@ from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
+                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE, USER_EMAIL_UNIQUE)
 
 User = get_user_model()
 
@@ -39,14 +39,17 @@ class SignUPSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(max_length=150)
 
-    '''def validate(self, data):
-        if (User.objects.filter(username=data['username'])
-                or User.objects.filter(email=data['email'])):
-            raise serializers.ValidationError(USER_EMAIL_UNIQUE)
-        return data'''
+    # def validate_username(self, value):
+    #     return _username_check(self, value)
 
-    def validate_username(self, value):
-        return _username_check(self, value)
+    def validate(self, data):
+        # if (User.objects.filter(username=data['username']).exists()
+        #         or User.objects.filter(email=data['email']).exists()):
+        if (User.objects.filter(username=data['username'], email=data['email']).exists()):
+            return data
+        if (User.objects.filter(username=data['username']).exists() or User.objects.filter(email=data['email']).exists()):
+            raise serializers.ValidationError(USER_EMAIL_UNIQUE)
+        # return data
 
     class Meta:
         model = User

@@ -34,16 +34,16 @@ class SignUPViewSet(APIView):
     def post(self, request):
         serializer = SignUPSerializer(data=request.data)
         if serializer.is_valid():
-            username = request.data['username']
+            user = get_object_or_404(User, username=request.data['username'])
             email = request.data['email']
-            try:
-                user, _ = User.objects.get_or_create(
-                    username=username, email=email
-                )
-            except IntegrityError:
-                return Response(
-                    serializer.data, status=status.HTTP_400_BAD_REQUEST
-                )
+            # try:
+            #     user, _ = User.objects.get_or_create(
+            #         username=username, email=email
+            #     )
+            # except IntegrityError:
+            #     return Response(
+            #         serializer.data, status=status.HTTP_400_BAD_REQUEST
+            #     )
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 EMAIL_CONF_CODE_SUBJECT,
