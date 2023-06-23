@@ -35,15 +35,13 @@ class SignUPViewSet(APIView):
         if serializer.is_valid():
             username = request.data['username']
             email = request.data['email']
-
             user, _ = User.objects.get_or_create(
                 username=username, email=email
             )
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 EMAIL_CONF_CODE_SUBJECT,
-                EMAIL_CONF_CODE_MESSAGE
-                + confirmation_code,
+                EMAIL_CONF_CODE_MESSAGE + confirmation_code,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
@@ -160,8 +158,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorModeratorAdminOrReadOnly, )
 
     def _get_review_for_comment(self):
+        title_id = self.kwargs.get('title_id')
         review_id = self.kwargs.get('review_id')
-        return get_object_or_404(Review, id=review_id)
+        return get_object_or_404(Review, id=review_id, title_id=title_id)
 
     def get_queryset(self):
         review = self._get_review_for_comment()
