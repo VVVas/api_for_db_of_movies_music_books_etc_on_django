@@ -41,8 +41,7 @@ class SignUPViewSet(APIView):
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 EMAIL_CONF_CODE_SUBJECT,
-                EMAIL_CONF_CODE_MESSAGE
-                + confirmation_code,
+                EMAIL_CONF_CODE_MESSAGE + confirmation_code,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
