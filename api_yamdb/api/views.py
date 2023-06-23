@@ -1,3 +1,5 @@
+from api_yamdb.settings import (EMAIL_THEME, EMAIL_MESSAGE,
+                                EMAIL_ADDR_ADMIN)
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -42,14 +44,12 @@ class SignUPViewSet(APIView):
                 return Response(
                     serializer.data, status=status.HTTP_400_BAD_REQUEST
                 )
-
             confirmation_code = default_token_generator.make_token(user)
-
             send_mail(
-                'Регистрация пользователя',
-                f'Привет, {username}!\n\n '
-                f'confirmation_code = {confirmation_code}.',
-                'admin@yamdb.ru',
+                EMAIL_THEME,
+                EMAIL_MESSAGE
+                + f'confirmation_code = {confirmation_code}.',
+                EMAIL_ADDR_ADMIN,
                 [email],
                 fail_silently=False,
             )
@@ -90,7 +90,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         methods=['get', 'patch'],
         url_path='me'
     )
-    def me_dev(self, request):
+    def me(self, request):
         if request.method == 'GET':
             queryset = User.objects.all()
             user = get_object_or_404(queryset, username=request.user)
