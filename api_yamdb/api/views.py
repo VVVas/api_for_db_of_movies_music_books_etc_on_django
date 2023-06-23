@@ -2,7 +2,6 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -36,18 +35,15 @@ class SignUPViewSet(APIView):
         if serializer.is_valid():
             username = request.data['username']
             email = request.data['email']
-            try:
-                user, _ = User.objects.get_or_create(
-                    username=username, email=email
-                )
-            except IntegrityError:
-                return Response(
-                    serializer.data, status=status.HTTP_400_BAD_REQUEST
-                )
+
+            user, _ = User.objects.get_or_create(
+                username=username, email=email
+            )
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 EMAIL_CONF_CODE_SUBJECT,
-                EMAIL_CONF_CODE_MESSAGE + confirmation_code,
+                EMAIL_CONF_CODE_MESSAGE
+                + confirmation_code,
                 settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,

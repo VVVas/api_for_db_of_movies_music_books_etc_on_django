@@ -8,7 +8,8 @@ from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
+                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE,
+                       USER_EMAIL_UNIQUE, USER_USERNAME_UNIQUE)
 
 User = get_user_model()
 
@@ -39,11 +40,14 @@ class SignUPSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(max_length=150)
 
-    '''def validate(self, data):
-        if (User.objects.filter(username=data['username'])
-                or User.objects.filter(email=data['email'])):
+    def validate(self, data):
+        if (not User.objects.filter(username=data['username']).exists()
+                and User.objects.filter(email=data['email']).exists()):
             raise serializers.ValidationError(USER_EMAIL_UNIQUE)
-        return data'''
+        if (User.objects.filter(username=data['username']).exists()
+                and not User.objects.filter(email=data['email']).exists()):
+            raise serializers.ValidationError(USER_USERNAME_UNIQUE)
+        return data
 
     def validate_username(self, value):
         return _username_check(self, value)
@@ -139,7 +143,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, id=title_id)
         if request.method == 'POST':
             if request.user.reviews.filter(
-                title=title
+                    title=title
             ).exists():
                 raise serializers.ValidationError(REVIEW_ONE)
         return data
