@@ -1,25 +1,32 @@
 import re
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
-from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
+from .messages import (ERR_REVIEW_ONE, ERR_REVIEW_SCORE,
+                       ERR_TITLE_YEAR_FROM_FUTURE, ERR_USER_EMAIL_UNIQUE,
+                       ERR_USER_NAME_NOT_ME, ERR_USER_NAME_TEMPLATE,
+                       ERR_USER_NAME_UNIQUE, RE_USER_NAME_TEMPLATE)
 
 User = get_user_model()
+
+
+def _username_check(self, value):
+    if value == settings.USER_SELF:
+        raise serializers.ValidationError(ERR_USER_NAME_NOT_ME)
+    elif not re.fullmatch(RE_USER_NAME_TEMPLATE, value):
+        raise serializers.ValidationError(ERR_USER_NAME_TEMPLATE)
+    return value
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(USER_NAME_NOT_ME)
-        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return _username_check(self, value)
 
     class Meta:
         model = User
@@ -35,11 +42,16 @@ class SignUPSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(USER_NAME_NOT_ME)
-        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return _username_check(self, value)
+
+    def validate(self, data):
+        if User.objects.filter(email=data['email']).exclude(
+                username=data['username']).exists():
+            raise serializers.ValidationError(ERR_USER_EMAIL_UNIQUE)
+        if User.objects.filter(username=data['username']).exclude(
+                email=data['email']).exists():
+            raise serializers.ValidationError(ERR_USER_NAME_UNIQUE)
+        return data
 
     class Meta:
         model = User
@@ -53,9 +65,7 @@ class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
 
     def validate_username(self, value):
-        if not re.fullmatch(r'[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return _username_check(self, value)
 
     class Meta:
         model = User
@@ -67,7 +77,6 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         exclude = ('id',)
@@ -78,7 +87,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Genre
         exclude = ('id',)
@@ -111,7 +119,7 @@ class TitlesEditorSerializer(serializers.ModelSerializer):
 
     def validate_year(self, value):
         if value > (datetime.now().year + 10):
-            raise serializers.ValidationError(TITLE_YEAR_FROM_FUTURE)
+            raise serializers.ValidationError(ERR_TITLE_YEAR_FROM_FUTURE)
         return value
 
     class Meta:
@@ -127,7 +135,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     def validate_score(self, value):
         if value < 0 or value > 10:
-            raise serializers.ValidationError(REVIEW_SCORE)
+            raise serializers.ValidationError(ERR_REVIEW_SCORE)
         return value
 
     def validate(self, data):
@@ -135,10 +143,9 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context['view'].kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
         if request.method == 'POST':
-            if Review.objects.filter(
-                title=title, author=request.user
-            ).exists():
-                raise serializers.ValidationError(REVIEW_ONE)
+            if request.user.reviews.filter(
+                    title=title).exists():
+                raise serializers.ValidationError(ERR_REVIEW_ONE)
         return data
 
     class Meta:

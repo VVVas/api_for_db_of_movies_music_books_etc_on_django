@@ -1,7 +1,7 @@
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
-from django.db import IntegrityError
 from django.db.models import Avg
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
@@ -15,6 +15,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
+from .messages import EMAIL_CONF_CODE_MESSAGE, EMAIL_CONF_CODE_SUBJECT
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorModeratorAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -34,22 +35,14 @@ class SignUPViewSet(APIView):
         if serializer.is_valid():
             username = request.data['username']
             email = request.data['email']
-            try:
-                user, _ = User.objects.get_or_create(
-                    username=username, email=email
-                )
-            except IntegrityError:
-                return Response(
-                    serializer.data, status=status.HTTP_400_BAD_REQUEST
-                )
-
+            user, _ = User.objects.get_or_create(
+                username=username, email=email
+            )
             confirmation_code = default_token_generator.make_token(user)
-
             send_mail(
-                'Регистрация пользователя',
-                f'Привет, {username}!\n\n '
-                f'confirmation_code = {confirmation_code}.',
-                'admin@yamdb.ru',
+                EMAIL_CONF_CODE_SUBJECT,
+                EMAIL_CONF_CODE_MESSAGE + confirmation_code,
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
@@ -88,9 +81,9 @@ class UsersViewSet(viewsets.ModelViewSet):
         detail=False,
         permission_classes=(IsAuthenticated,),
         methods=['get', 'patch'],
-        url_path='me'
+        url_path=settings.USER_SELF
     )
-    def me_dev(self, request):
+    def me(self, request):
         if request.method == 'GET':
             queryset = User.objects.all()
             user = get_object_or_404(queryset, username=request.user)
@@ -165,8 +158,9 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = (IsAuthorModeratorAdminOrReadOnly, )
 
     def _get_review_for_comment(self):
+        title_id = self.kwargs.get('title_id')
         review_id = self.kwargs.get('review_id')
-        return get_object_or_404(Review, id=review_id)
+        return get_object_or_404(Review, id=review_id, title_id=title_id)
 
     def get_queryset(self):
         review = self._get_review_for_comment()
