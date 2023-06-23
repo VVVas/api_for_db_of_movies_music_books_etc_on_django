@@ -1,20 +1,20 @@
 import re
 from datetime import datetime
 
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
-
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       URLS_ME, USER_NAME_TEMPLATE, USER_NAME_NOT_ME)
+                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
 
 User = get_user_model()
 
 
-def username_check(self, value):
-    if value == URLS_ME:
+def _username_check(self, value):
+    if value == settings.USER_SELF:
         raise serializers.ValidationError(USER_NAME_NOT_ME)
     elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
         raise serializers.ValidationError(USER_NAME_TEMPLATE)
@@ -24,7 +24,7 @@ def username_check(self, value):
 class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
-        return username_check(self, value)
+        return _username_check(self, value)
 
     class Meta:
         model = User
@@ -46,7 +46,7 @@ class SignUPSerializer(serializers.ModelSerializer):
         return data'''
 
     def validate_username(self, value):
-        return username_check(self, value)
+        return _username_check(self, value)
 
     class Meta:
         model = User
@@ -60,9 +60,7 @@ class GetTokenSerializer(serializers.ModelSerializer):
     confirmation_code = serializers.CharField()
 
     def validate_username(self, value):
-        if not re.fullmatch(r'[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return _username_check(self, value)
 
     class Meta:
         model = User
