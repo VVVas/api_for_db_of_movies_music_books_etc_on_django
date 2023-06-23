@@ -41,11 +41,11 @@ class SignUPSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)
 
     def validate(self, data):
-        if (not User.objects.filter(username=data['username']).exists()
-                and User.objects.filter(email=data['email']).exists()):
+        if User.objects.filter(email=data['email']).exclude(
+                username=data['username']).exists():
             raise serializers.ValidationError(USER_EMAIL_UNIQUE)
-        if (User.objects.filter(username=data['username']).exists()
-                and not User.objects.filter(email=data['email']).exists()):
+        if User.objects.filter(username=data['username']).exclude(
+                email=data['email']).exists():
             raise serializers.ValidationError(USER_USERNAME_UNIQUE)
         return data
 
