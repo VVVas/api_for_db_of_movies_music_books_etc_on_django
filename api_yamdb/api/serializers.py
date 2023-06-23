@@ -10,7 +10,7 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from .messages import (ERR_REVIEW_ONE, ERR_REVIEW_SCORE,
                        ERR_TITLE_YEAR_FROM_FUTURE, ERR_USER_EMAIL_UNIQUE,
                        ERR_USER_NAME_NOT_ME, ERR_USER_NAME_TEMPLATE,
-                       ERR_USER_NAME_UNIQUE)
+                       ERR_USER_NAME_UNIQUE, RE_USER_NAME_TEMPLATE)
 
 User = get_user_model()
 
@@ -18,7 +18,7 @@ User = get_user_model()
 def _username_check(self, value):
     if value == settings.USER_SELF:
         raise serializers.ValidationError(ERR_USER_NAME_NOT_ME)
-    elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
+    elif not re.fullmatch(RE_USER_NAME_TEMPLATE, value):
         raise serializers.ValidationError(ERR_USER_NAME_TEMPLATE)
     return value
 
@@ -144,8 +144,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, id=title_id)
         if request.method == 'POST':
             if request.user.reviews.filter(
-                    title=title
-            ).exists():
+                    title=title).exists():
                 raise serializers.ValidationError(ERR_REVIEW_ONE)
         return data
 
