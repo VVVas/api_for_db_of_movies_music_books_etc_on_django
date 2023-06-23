@@ -30,5 +30,7 @@ auth_patterns = [
 
 urlpatterns = [
     path('v1/auth/', include(auth_patterns)),
+    # Мы не поняли, как общие url надо было сгруппировать
+    # и куда выносить. Они же и так все в роутере. Поясните, пожалуйста.
     path('v1/', include(router.urls)),
 ]
