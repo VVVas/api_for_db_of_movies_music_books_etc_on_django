@@ -15,6 +15,3 @@ PERMISSION_EDIT = (
 )
 
 URLS_ME = 'me'
-URLS_SIGNUP = 'v1/auth/signup/'
-URLS_TOKEN = 'v1/auth/token/'
-URLS_API = 'v1/'

@@ -8,7 +8,7 @@ from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       URLS_ME)
+                       URLS_ME, USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
 
 User = get_user_model()
 
@@ -40,9 +40,12 @@ class SignUPSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150)
 
     '''def validate(self, data):
-        if (User.objects.filter(username=data['username'])
-                or User.objects.filter(email=data['email'])):
-            raise serializers.ValidationError(USER_EMAIL_UNIQUE)
+        email = data.get('email')
+        username = data.get('username')
+
+        if (User.objects.filter(username=username)
+                or User.objects.filter(email=email)):
+            raise serializers.ValidationError('USER_EMAIL_UNIQUE')
         return data'''
 
     def validate_username(self, value):

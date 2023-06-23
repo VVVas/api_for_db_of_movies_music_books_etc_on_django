@@ -44,6 +44,9 @@ class SignUPViewSet(APIView):
                 return Response(
                     serializer.data, status=status.HTTP_400_BAD_REQUEST
                 )
+            '''user, _ = User.objects.get_or_create(
+                username=username, email=email
+            )'''
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
                 EMAIL_THEME,
