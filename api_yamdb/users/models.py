@@ -1,16 +1,16 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-USER_ROLE = 'user'
-ADMIN_ROLE = 'admin'
-MODERATOR_ROLE = 'moderator'
 
+USER_ROLE = 'user'
+MODERATOR_ROLE = 'moderator'
+ADMIN_ROLE = 'admin'
 
 class User(AbstractUser):
     ROLES = [
         (USER_ROLE, 'Пользователь'),
-        (ADMIN_ROLE, 'Модератор'),
-        (MODERATOR_ROLE, 'Администратор')
+        (MODERATOR_ROLE, 'Модератор'),
+        (ADMIN_ROLE, 'Администратор')
     ]
     username = models.CharField(
         max_length=150,
