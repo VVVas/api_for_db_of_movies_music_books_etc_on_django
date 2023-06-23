@@ -113,12 +113,11 @@ STATICFILES_DIRS = ((BASE_DIR / 'static/'),)
 CSV_FILES_DIR = os.path.join(BASE_DIR, 'static/data')
 
 AUTH_USER_MODEL = 'users.User'
+USER_SELF = 'me'
 
 EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
 EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-EMAIL_ADDR_ADMIN = 'admin@yamdb.ru'
-EMAIL_THEME = 'Регистрация пользователя'
-EMAIL_MESSAGE = 'Привет, новый пользователь!\n\n '
+DEFAULT_FROM_EMAIL = 'admin@yamdb.fake'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

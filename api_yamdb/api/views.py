@@ -1,5 +1,4 @@
-from api_yamdb.settings import (EMAIL_THEME, EMAIL_MESSAGE,
-                                EMAIL_ADDR_ADMIN)
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
 from django.core.mail import send_mail
@@ -17,6 +16,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 
 from reviews.models import Category, Genre, Review, Title
 from .filters import TitleFilter
+from .messages import EMAIL_CONF_CODE_MESSAGE, EMAIL_CONF_CODE_SUBJECT
 from .permissions import (IsAdmin, IsAdminOrReadOnly,
                           IsAuthorModeratorAdminOrReadOnly)
 from .serializers import (CategorySerializer, CommentSerializer,
@@ -46,10 +46,9 @@ class SignUPViewSet(APIView):
                 )
             confirmation_code = default_token_generator.make_token(user)
             send_mail(
-                EMAIL_THEME,
-                EMAIL_MESSAGE
-                + f'confirmation_code = {confirmation_code}.',
-                EMAIL_ADDR_ADMIN,
+                EMAIL_CONF_CODE_SUBJECT,
+                EMAIL_CONF_CODE_MESSAGE + confirmation_code,
+                settings.DEFAULT_FROM_EMAIL,
                 [email],
                 fail_silently=False,
             )
@@ -88,7 +87,7 @@ class UsersViewSet(viewsets.ModelViewSet):
         detail=False,
         permission_classes=(IsAuthenticated,),
         methods=['get', 'patch'],
-        url_path='me'
+        url_path=settings.USER_SELF
     )
     def me(self, request):
         if request.method == 'GET':
