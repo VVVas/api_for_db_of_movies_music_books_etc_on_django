@@ -6,6 +6,7 @@ USER_ROLE = 'user'
 MODERATOR_ROLE = 'moderator'
 ADMIN_ROLE = 'admin'
 
+
 class User(AbstractUser):
     ROLES = [
         (USER_ROLE, 'Пользователь'),
