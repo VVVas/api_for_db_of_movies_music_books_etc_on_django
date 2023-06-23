@@ -39,8 +39,8 @@ class SignUPSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(max_length=150)
 
-    # def validate_username(self, value):
-    #     return _username_check(self, value)
+    def validate_username(self, value):
+        return _username_check(self, value)
 
     def validate(self, data):
         # if (User.objects.filter(username=data['username']).exists()
@@ -49,7 +49,7 @@ class SignUPSerializer(serializers.ModelSerializer):
             return data
         if (User.objects.filter(username=data['username']).exists() or User.objects.filter(email=data['email']).exists()):
             raise serializers.ValidationError(USER_EMAIL_UNIQUE)
-        # return data
+        return data
 
     class Meta:
         model = User

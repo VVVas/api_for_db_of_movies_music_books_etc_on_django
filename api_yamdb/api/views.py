@@ -34,8 +34,14 @@ class SignUPViewSet(APIView):
     def post(self, request):
         serializer = SignUPSerializer(data=request.data)
         if serializer.is_valid():
-            user = get_object_or_404(User, username=request.data['username'])
+            username = request.data['username']
             email = request.data['email']
+            user, _ = User.objects.get_or_create(
+                username=username, email=email
+            )
+
+            # user = get_object_or_404(User, username=username, email=email)
+            
             # try:
             #     user, _ = User.objects.get_or_create(
             #         username=username, email=email
