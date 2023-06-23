@@ -6,20 +6,25 @@ from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
 from reviews.models import Category, Comment, Genre, Review, Title
+
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       USER_NAME_NOT_ME, USER_NAME_TEMPLATE)
+                       URLS_ME)
 
 User = get_user_model()
+
+
+def username_check(self, value):
+    if value == URLS_ME:
+        raise serializers.ValidationError(USER_NAME_NOT_ME)
+    elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
+        raise serializers.ValidationError(USER_NAME_TEMPLATE)
+    return value
 
 
 class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(USER_NAME_NOT_ME)
-        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return username_check(self, value)
 
     class Meta:
         model = User
@@ -34,12 +39,14 @@ class SignUPSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(max_length=254)
     username = serializers.CharField(max_length=150)
 
+    '''def validate(self, data):
+        if (User.objects.filter(username=data['username'])
+                or User.objects.filter(email=data['email'])):
+            raise serializers.ValidationError(USER_EMAIL_UNIQUE)
+        return data'''
+
     def validate_username(self, value):
-        if value == 'me':
-            raise serializers.ValidationError(USER_NAME_NOT_ME)
-        elif not re.fullmatch(r'^[\w.@+-]+\Z', value):
-            raise serializers.ValidationError(USER_NAME_TEMPLATE)
-        return value
+        return username_check(self, value)
 
     class Meta:
         model = User
@@ -67,7 +74,6 @@ class GetTokenSerializer(serializers.ModelSerializer):
 
 
 class CategorySerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Category
         exclude = ('id',)
@@ -78,7 +84,6 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class GenreSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = Genre
         exclude = ('id',)
@@ -136,7 +141,7 @@ class ReviewSerializer(serializers.ModelSerializer):
         title = get_object_or_404(Title, id=title_id)
         if request.method == 'POST':
             if Review.objects.filter(
-                title=title, author=request.user
+                    title=title, author=request.user
             ).exists():
                 raise serializers.ValidationError(REVIEW_ONE)
         return data

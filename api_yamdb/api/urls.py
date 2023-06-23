@@ -5,6 +5,7 @@ from .views import (CategoryViewSet, CommentViewSet, GenreViewSet,
                     GetTokenViewSet, ReviewViewSet, SignUPViewSet,
                     TitleViewSet, UsersViewSet)
 
+from .messages import (URLS_SIGNUP, URLS_TOKEN, URLS_API)
 
 app_name = 'api'
 
@@ -26,7 +27,7 @@ router_version_1.register('titles', TitleViewSet, basename='titles')
 
 
 urlpatterns = [
-    path('v1/auth/signup/', SignUPViewSet.as_view()),
-    path('v1/auth/token/', GetTokenViewSet.as_view()),
-    path('v1/', include(router_version_1.urls)),
+    path(URLS_SIGNUP, SignUPViewSet.as_view()),
+    path(URLS_TOKEN, GetTokenViewSet.as_view()),
+    path(URLS_API, include(router_version_1.urls)),
 ]
