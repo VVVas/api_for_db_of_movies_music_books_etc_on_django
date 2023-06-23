@@ -8,7 +8,7 @@ from rest_framework import serializers
 from reviews.models import Category, Comment, Genre, Review, Title
 
 from .messages import (REVIEW_ONE, REVIEW_SCORE, TITLE_YEAR_FROM_FUTURE,
-                       URLS_ME)
+                       URLS_ME, USER_NAME_TEMPLATE, USER_NAME_NOT_ME)
 
 User = get_user_model()
 
@@ -140,8 +140,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         title_id = self.context['view'].kwargs.get('title_id')
         title = get_object_or_404(Title, id=title_id)
         if request.method == 'POST':
-            if Review.objects.filter(
-                    title=title, author=request.user
+            if request.user.reviews.filter(
+                title=title
             ).exists():
                 raise serializers.ValidationError(REVIEW_ONE)
         return data
