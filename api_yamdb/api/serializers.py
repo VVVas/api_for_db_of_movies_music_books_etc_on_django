@@ -3,6 +3,7 @@ from datetime import datetime
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 
@@ -10,7 +11,7 @@ from reviews.models import Category, Comment, Genre, Review, Title
 from .messages import (ERR_REVIEW_ONE, ERR_REVIEW_SCORE,
                        ERR_TITLE_YEAR_FROM_FUTURE, ERR_USER_EMAIL_UNIQUE,
                        ERR_USER_NAME_NOT_ME, ERR_USER_NAME_TEMPLATE,
-                       ERR_USER_NAME_UNIQUE, RE_USER_NAME_TEMPLATE)
+                       RE_USER_NAME_TEMPLATE)
 
 User = get_user_model()
 
@@ -45,12 +46,13 @@ class SignUPSerializer(serializers.ModelSerializer):
         return _username_check(self, value)
 
     def validate(self, data):
-        if User.objects.filter(email=data['email']).exclude(
-                username=data['username']).exists():
+        username = data['username']
+        email = data['email']
+        if User.objects.filter(
+            (Q(username=username) & ~Q(email=email))
+            | (~Q(username=username) & Q(email=email))
+        ).exists():
             raise serializers.ValidationError(ERR_USER_EMAIL_UNIQUE)
-        if User.objects.filter(username=data['username']).exclude(
-                email=data['email']).exists():
-            raise serializers.ValidationError(ERR_USER_NAME_UNIQUE)
         return data
 
     class Meta:
