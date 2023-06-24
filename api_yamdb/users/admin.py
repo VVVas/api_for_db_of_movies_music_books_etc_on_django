@@ -4,6 +4,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-# Мы все модели подключили к админке в файлах admin.py
-# в соответствующих приложениях. Или надо было как-то по другом?
-admin.site.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        'pk', 'username', 'first_name', 'last_name', 'email', 'role',
+    )
+    list_editable = ('role',)
+    search_fields = ('username', 'email', 'first_name', 'last_name',)
+    list_filter = ('role',)
+    empty_value_display = '-пусто-'
+
+
+admin.site.register(User, UserAdmin)
