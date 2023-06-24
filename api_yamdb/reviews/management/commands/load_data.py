@@ -1,4 +1,5 @@
 import csv
+import logging
 import os
 
 from django.conf import settings
@@ -9,6 +10,15 @@ from django.db import IntegrityError
 from reviews.models import Category, Comment, Genre, Review, Title
 
 User = get_user_model()
+
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s, %(levelname)s, %(name)s, %(message)s',
+    filename=os.path.join(settings.CSV_FILES_DIR, 'load_data.log')
+)
+
+logger = logging.getLogger(__name__)
 
 
 TABLES = {
@@ -37,7 +47,7 @@ def open_csv_file(file_name):
         with (open(csv_path, encoding='utf-8')) as file:
             return list(csv.reader(file))
     except FileNotFoundError:
-        print(f'Файл {csv_file} не найден.')
+        logger.error(f'Файл {csv_file} не найден.')
         return
 
 
@@ -63,15 +73,16 @@ def load_csv(file_name, class_name):
             table = class_name(**data_csv)
             table.save()
         except (ValueError, IntegrityError) as error:
-            print(f'Ошибка в загружаемых данных. {error}. '
-                  f'{table_not_loaded}')
+            logger.error(
+                f'Ошибка в загружаемых данных. {error}. {table_not_loaded}'
+            )
             break
-    print(table_loaded)
+    logger.info(table_loaded)
 
 
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for key, value in TABLES.items():
-            print(f'Загрузка таблицы {value.__qualname__}')
+            logger.info(f'Загрузка таблицы {value.__qualname__}')
             load_csv(key, value)
