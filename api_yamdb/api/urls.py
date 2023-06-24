@@ -28,9 +28,11 @@ auth_patterns = [
     path('token/', GetTokenViewSet.as_view()),
 ]
 
-urlpatterns = [
+v1_patterns = [
     path('auth/', include(auth_patterns)),
-    # Мы не поняли, как общие url надо было сгруппировать
-    # и куда выносить. Они же и так все в роутере. Поясните, пожалуйста.
     path('', include(router.urls)),
+]
+
+urlpatterns = [
+    path('v1/', include(v1_patterns)),
 ]
