@@ -4,7 +4,7 @@
 ## Стек технологий  
 Python, Django, Django REST framework, django-filter, Simple JWT, SQLite  
 
-## Как развернуть API для Блога  
+## Как развернуть  
 
 Создать окружение  
 ```  
